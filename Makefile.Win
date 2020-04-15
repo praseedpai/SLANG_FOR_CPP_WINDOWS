@@ -1,0 +1,59 @@
+# Makefile.Win
+#   
+# Run as  ( at the Visual C++ command prompt )
+#    nmake -f Makefile.Win lib_create   // This creates libslang.lib
+#    nmake -f Makefile.Win exe_create   // produces slangcc.exe     
+# 
+CC=cl
+LIB=LIB 
+CFLAGS=/c /EHsc /Zi /MDd 
+LFLAGS=/LIBPATH:"G:\GODEL\LLVM\lib\Debug" /LIBPATH:"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib" /LIBPATH:"D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib"
+LINKER=LINK
+LLVMLIBS=LLVMAnalysis.lib LLVMArchive.lib LLVMAsmParser.lib    LLVMAsmPrinter.lib LLVMBitReader.lib 	LLVMBitWriter.lib LLVMCodeGen.lib LLVMCore.lib LLVMDebugInfo.lib LLVMExecutionEngine.lib LLVMInstCombine.lib 		LLVMInstrumentation.lib LLVMInterpreter.lib LLVMipa.lib LLVMipo.lib LLVMJIT.lib LLVMLinker.lib LLVMMC.lib 	LLVMMCDisassembler.lib LLVMMCJIT.lib LLVMMCParser.lib LLVMObject.lib LLVMRuntimeDyld.lib LLVMScalarOpts.lib 	LLVMSelectionDAG.lib LLVMSupport.lib  LLVMTableGen.lib LLVMTarget.lib LLVMTransformUtils.lib LLVMVectorize.lib 	LLVMX86AsmParser.lib LLVMX86AsmPrinter.lib LLVMX86CodeGen.lib LLVMX86Desc.lib LLVMX86Disassembler.lib LLVMX86Info.lib 	LLVMX86Utils.lib crypt32.lib shell32.lib advapi32.lib
+
+builder:builder.cc
+	$(CC) $(CFLAGS) builder.cc  /Fobuilder.obj  
+
+cunit:compilation_unit.cc
+	$(CC) $(CFLAGS)  compilation_unit.cc /Focompilation_unit.obj 
+common:common.cc
+	$(CC) $(CFLAGS) common.cc /Focommon.obj 
+
+codegen:codegen.cc
+	$(CC) $(CFLAGS) codegen.cc /Focodegen.obj 
+context: context.cc
+	$(CC) $(CFLAGS) context.cc /Focontext.obj 
+
+symboltable: symbol_table.cc
+	$(CC) $(CFLAGS) symbol_table.cc /Fosymbol_table.obj 
+
+ast:ast.cc
+	$(CC) $(CFLAGS) ast.cc /Foast.obj 
+
+ast_statement:ast_statement.cc
+	$(CC) $(CFLAGS) ast_statement.cc /Foast_statement.obj 
+
+parser:parser.cc
+	$(CC) $(CFLAGS) parser.cc /Foparser.obj 
+
+lexer:lexer.cc
+	$(CC) $(CFLAGS) lexer.cc /Folexer.obj 
+
+slangcc:slangcc.cc
+	$(CC) $(CFLAGS) slangcc.cc /Foslangcc.obj
+
+
+lib_generate: codegen common context symboltable ast ast_statement lexer parser cunit builder slangcc 
+	$(LIB) /out:libslang.lib ast.obj ast_statement.obj lexer.obj parser.obj codegen.obj \
+               common.obj context.obj symbol_table.obj compilation_unit.obj builder.obj  
+
+exe_generate: slangcc.obj libslang.lib
+        $(LINKER) $(LFLAGS) slangcc.obj   $(LLVMLIBS) libslang.lib
+      
+clean:
+	del *.obj 
+        del *.lib
+
+
+
+
